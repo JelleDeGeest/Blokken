@@ -22,7 +22,16 @@ class Block(pg.sprite.Sprite):
             self.sfx_count += 1
             if self.sfx_count >= self.sfx_cycles:
                 self.sfx_count = 0
+                self.sfx_fix_pos()
+                self.tetromino.tetris.destroying_lines = 0
                 return True
+    
+    def sfx_fix_pos(self):
+        field_array = self.tetromino.tetris.field_array
+        for y in range (FIELD_H - 1, -1, -1):
+            for x in range(FIELD_W):
+                if field_array[y][x]:
+                    field_array[y][x].pos = vec(x,y)
 
     def sfx_run(self):
         self.pos.x -= self.sfx_speed  
@@ -75,15 +84,16 @@ class Tetromino:
         return any(map(Block.is_collide, self.blocks, block_positions))
 
     def move(self, direction):
-        move_direction = MOVE_DIRECTIONS[direction]
-        new_block_positions = [block.pos + move_direction for block in self.blocks]
-        is_collide = self.is_collide(new_block_positions)
+        if self.tetris.destroying_lines == 0:
+            move_direction = MOVE_DIRECTIONS[direction]
+            new_block_positions = [block.pos + move_direction for block in self.blocks]
+            is_collide = self.is_collide(new_block_positions)
 
-        if not is_collide:
-            for block in self.blocks:
-                block.pos += move_direction
-        elif direction == 'down':
-            self.landing = True
+            if not is_collide:
+                for block in self.blocks:
+                    block.pos += move_direction
+            elif direction == 'down':
+                self.landing = True
 
     def update(self):
         self.move(direction="down")

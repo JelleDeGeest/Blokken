@@ -31,9 +31,12 @@ class App:
         self.screen.fill(color=BG_COLOR) 
         self.screen.fill(color=FIELD_COLOR, rect=(self.x_offset,0,*FIELD_RES))
         self.tetris.draw()
+        self.draw_cuttoff()
         self.text.draw()
         pg.display.flip()
-        
+    
+    def draw_cuttoff(self):
+        pg.draw.rect(self.screen, BG_COLOR, (0,0,self.x_offset,WINH))
     
 
     def check_events(self):

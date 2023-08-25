@@ -9,10 +9,10 @@ class Text:
         self.font = ft.Font(FONT_PATH)
     
     def draw(self):
-        self.font.render_to(self.app.screen, (WINW * 0.6, WINH * 0.02), "BLOKKEN", size=70, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6, WINH * 0.22), "VOLGENDE", size=40, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6, WINH * 0.67), "SCORE", size=40, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6, WINH * 0.8), f'{self.app.tetris.score}', size=40, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.02), "BLOKKEN", size=70, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.22), "VOLGENDE", size=40, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.67), "SCORE", size=40, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.8), f'{self.app.tetris.score}', size=40, fgcolor="white")
 
 class Tetris:
     def __init__(self, app):
@@ -27,6 +27,8 @@ class Tetris:
         self.full_lines = 0
         self.points = {0:0, 1:100, 2:300, 3:700, 4:1500}
 
+        self.destroying_lines = False
+
     def get_score(self):
         self.score += self.points[self.full_lines]
         self.full_lines = 0
@@ -37,8 +39,8 @@ class Tetris:
             for x in range(FIELD_W):
                 self.field_array[row][x] = self.field_array[y][x]
 
-                if self.field_array[y][x]:
-                    self.field_array[row][x].pos = vec(x,y)
+                # if self.field_array[y][x]:
+                #     self.field_array[row][x].pos = vec(x,y)
 
             if sum(map(bool, self.field_array[y])) < FIELD_W:
                 row -= 1
@@ -48,6 +50,9 @@ class Tetris:
                     self.field_array[y][x] = 0
                 
                 self.full_lines += 1
+
+        if self.full_lines != 0:
+            self.destroying_lines = self.full_lines
 
     def put_tetromino_blocks_in_array(self):
         for block in self.tetromino.blocks:
@@ -106,3 +111,4 @@ class Tetris:
     def draw(self):
         self.draw_grid()
         self.sprite_group.draw(self.app.screen)
+        
