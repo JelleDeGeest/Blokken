@@ -13,6 +13,7 @@ ANIM_FAST_TIME_INTERVAL = 15
 
 MUSIC = 'assets/sounds/Tetromino_falling.wav'
 SOUND_READY_TO_ANSWER = 'assets/sounds/ready_to_answer.wav'
+SOUND_COMPLETE_ROW = 'assets/sounds/complete_row.wav'
 
 
 

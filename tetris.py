@@ -10,7 +10,7 @@ class Text:
         self.font = ft.Font(FONT_PATH)
     
     def draw(self):
-        self.font.render_to(self.app.screen, (WINW * 0.06 , WINH * 0.1), "BLOKINOHANNES", size=70, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.04 , WINH * 0.1), "BLOKINIOHANNES", size=70, fgcolor="white")
         self.font.render_to(self.app.screen, (WINW * 0.65 + self.app.x_offset, WINH * 0.11), "VOLGENDE:", size=40, fgcolor="white")
         self.draw_score()
         self.draw_next_to_drink()
@@ -54,6 +54,7 @@ class Tetris:
         pg.mixer.music.load(MUSIC)
 
         self.sound_ready_to_answer = pg.mixer.Sound(SOUND_READY_TO_ANSWER)
+        self.sound_complete_row = pg.mixer.Sound(SOUND_COMPLETE_ROW)
         self.antwoorders = None
         self.draw_random_antwoorders()
 
@@ -95,6 +96,7 @@ class Tetris:
         if self.full_lines != 0:
             self.destroying_lines = self.full_lines
             pg.mixer.music.stop()
+            self.sound_complete_row.play()
 
     def put_tetromino_blocks_in_array(self):
         for block in self.tetromino.blocks:
