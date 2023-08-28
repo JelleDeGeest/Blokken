@@ -2,6 +2,7 @@ from settings import *
 import math
 from tetromino import Tetromino
 import pygame.freetype as ft
+import random
 
 class Text:
     def __init__(self, app):
@@ -9,13 +10,31 @@ class Text:
         self.font = ft.Font(FONT_PATH)
     
     def draw(self):
-        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.02), "BLOKKEN", size=70, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.22), "VOLGENDE", size=40, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.67), "SCORE", size=40, fgcolor="white")
-        self.font.render_to(self.app.screen, (WINW * 0.6 + self.app.x_offset, WINH * 0.8), f'{self.app.tetris.score}', size=40, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.06 , WINH * 0.1), "BLOKINOHANNES", size=70, fgcolor="white")
+        self.font.render_to(self.app.screen, (WINW * 0.65 + self.app.x_offset, WINH * 0.11), "VOLGENDE:", size=40, fgcolor="white")
+        self.draw_score()
+        self.draw_next_to_drink()
+        self.draw_dranken()
+
+
+    def draw_score(self):
+        self.font.render_to(self.app.screen, (WINW * 0.65 + self.app.x_offset, WINH * 0.32 ), "SCORES:", size=40, fgcolor="white")
+        for i in range(AMOUNT_OF_PLAYERS):
+            self.font.render_to(self.app.screen, (WINW * 0.65  + self.app.x_offset, WINH * (0.42+0.13*i)), f'{TEAM_NAMES[i]}', size=40, fgcolor=PLAYER_COLORS[i])
+            self.font.render_to(self.app.screen, (WINW * 0.65  + self.app.x_offset, WINH * (0.48+0.13*i)), f'{self.app.tetris.score[i]}', size=40, fgcolor="white")
+
+    def draw_dranken(self):
+        self.font.render_to(self.app.screen, (WINW * 0.24, WINH * 0.30), "DRANKEN", size=55, fgcolor="white")
+        for i in range(len(DRANKEN)):
+            self.font.render_to(self.app.screen, (WINW * 0.20, WINH * (0.40+0.07*i)), f'{DRANKEN[i][0]}', size=45, fgcolor="white")
+            self.font.render_to(self.app.screen, (WINW * 0.50, WINH * (0.40+0.07*i)), f'{DRANKEN[i][1]}', size=45, fgcolor="white")
+
+    def draw_next_to_drink(self):
+        for i in range(AMOUNT_OF_PLAYERS):
+            self.font.render_to(self.app.screen, (WINW * 1.05  + self.app.x_offset, WINH * (0.48+0.13*i)), f'{self.app.tetris.antwoorders[i]}', size=40, fgcolor="white")
 
 class Tetris:
-    def __init__(self, app):
+    def __init__(self, app, score):
         self.app = app
         self.currently_playing = 0
         self.sprite_group = pg.sprite.Group()
@@ -23,8 +42,7 @@ class Tetris:
         self.tetromino = Tetromino(self)
         self.next_tetromino = Tetromino(self, current=False)
         self.speed_up = False
-
-        self.score = [0] * AMOUNT_OF_PLAYERS
+        self.score = score
         self.full_lines = 0
         self.points = {0:0, 1:100, 2:300, 3:700, 4:1500}
 
@@ -36,8 +54,21 @@ class Tetris:
         pg.mixer.music.load(MUSIC)
 
         self.sound_ready_to_answer = pg.mixer.Sound(SOUND_READY_TO_ANSWER)
+        self.antwoorders = None
+        self.draw_random_antwoorders()
 
-
+        
+    def draw_random_antwoorders(self):
+        antwoorders = []
+        if self.antwoorders == None:
+            for i in range(len(TEAMS)):
+                antwoorders.append(random.choice(TEAMS[i]))
+        else:
+            for i in range(len(TEAMS)):
+                temp = TEAMS[i].copy()
+                temp.remove(self.antwoorders[i])
+                antwoorders.append(random.choice(temp))
+        self.antwoorders = antwoorders            
 
     def get_score(self):
         self.score[self.currently_playing] += self.points[self.full_lines]
@@ -84,7 +115,7 @@ class Tetris:
             self.currently_playing = pressed_number
             [block.set_rect() for block in self.tetromino.blocks]
             [block.set_rect() for block in self.next_tetromino.blocks]
-            print(pressed_number)
+            # print(pressed_number)
 
     def setup_tetrominos_to_play(self):
         self.tetrominos_to_play = BLOCKS_PER_TURN
@@ -95,7 +126,8 @@ class Tetris:
         if self.tetromino.landing:
             
             if self.is_game_over():
-                self.__init__(self.app)
+                self.score[self.currently_playing] -= 200
+                self.__init__(self.app, self.score)
             else:
                 self.speed_up = False
                 self.put_tetromino_blocks_in_array()
@@ -115,13 +147,20 @@ class Tetris:
         elif pressed_key == pg.K_UP and self.ready_to_play:
             self.tetromino.rotate()
         elif pressed_key == pg.K_DOWN and self.ready_to_play:
-            self.speed_up = True
+            # self.speed_up = True
+            self.tetromino.move(direction="down")
         elif pressed_key in NUMBER_KEYS:
             self.change_player(pressed_key)
         elif pressed_key == pg.K_RETURN:
             self.setup_tetrominos_to_play()
         elif pressed_key == pg.K_x:
             self.sound_ready_to_answer.play()
+        elif pressed_key == pg.K_r:
+            self.draw_random_antwoorders()
+        elif pressed_key == pg.K_PAGEUP:
+            self.score[self.currently_playing] += 100
+        elif pressed_key == pg.K_PAGEDOWN:
+            self.score[self.currently_playing] -= 100
 
 
     def draw_grid(self):

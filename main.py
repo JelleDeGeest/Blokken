@@ -11,9 +11,12 @@ class App:
         self.screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
         self.clock = pg.time.Clock()
         self.set_timer()
-        self.tetris = Tetris(self)
+        self.tetris = Tetris(self, START_SCORE)
         self.text = Text(self)
         self.x_offset = pg.display.get_surface().get_size()[0] // 2 - FIELD_W * TILE_SIZE // 2
+        # picture =  pg.image.load("assets/background.jpg")
+        # picture = pg.transform.scale(picture, (WINW, WINH))
+        # self.rectangle = picture.get_rect()
 
     def set_timer(self):
         self.user_event = pg.USEREVENT + 0
@@ -28,7 +31,8 @@ class App:
         self.tetris.update()
 
     def draw(self):
-        self.screen.fill(color=BG_COLOR) 
+        self.screen.fill(color=BG_COLOR)
+        # self.screen.blit(pg.image.load("assets/background.jpg"), self.rectangle)
         self.screen.fill(color=FIELD_COLOR, rect=(self.x_offset,0,*FIELD_RES))
         self.tetris.draw()
         self.draw_cuttoff()
@@ -42,6 +46,7 @@ class App:
     def check_events(self):
         self.anim_trigger = False
         for event in pg.event.get():
+
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 pg.quit()
                 sys.exit()

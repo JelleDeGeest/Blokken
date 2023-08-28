@@ -12,7 +12,7 @@ class Block(pg.sprite.Sprite):
         self.set_rect()
 
         self.sfx_speed = 0.1
-        self.sfx_cycles = 3
+        self.sfx_cycles = 5
         self.sfx_count = 0
     
     def set_rect(self):
