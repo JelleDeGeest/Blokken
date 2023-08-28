@@ -17,20 +17,30 @@ class Text:
 class Tetris:
     def __init__(self, app):
         self.app = app
+        self.currently_playing = 0
         self.sprite_group = pg.sprite.Group()
         self.field_array = self.get_field_array()
         self.tetromino = Tetromino(self)
         self.next_tetromino = Tetromino(self, current=False)
         self.speed_up = False
 
-        self.score = 0
+        self.score = [0] * AMOUNT_OF_PLAYERS
         self.full_lines = 0
         self.points = {0:0, 1:100, 2:300, 3:700, 4:1500}
 
         self.destroying_lines = False
 
+        self.ready_to_play = False
+        self.tetrominos_to_play = 0
+
+        pg.mixer.music.load(MUSIC)
+
+        self.sound_ready_to_answer = pg.mixer.Sound(SOUND_READY_TO_ANSWER)
+
+
+
     def get_score(self):
-        self.score += self.points[self.full_lines]
+        self.score[self.currently_playing] += self.points[self.full_lines]
         self.full_lines = 0
 
     def check_full_lines(self):
@@ -53,6 +63,7 @@ class Tetris:
 
         if self.full_lines != 0:
             self.destroying_lines = self.full_lines
+            pg.mixer.music.stop()
 
     def put_tetromino_blocks_in_array(self):
         for block in self.tetromino.blocks:
@@ -66,9 +77,23 @@ class Tetris:
         if self.tetromino.blocks[0].pos.y == INIT_POS_OFFSET[1]:
             pg.time.wait(300)
             return True
+    
+    def change_player(self, pressed_key):
+        pressed_number = pressed_key - pg.K_1
+        if pressed_number < AMOUNT_OF_PLAYERS:
+            self.currently_playing = pressed_number
+            [block.set_rect() for block in self.tetromino.blocks]
+            [block.set_rect() for block in self.next_tetromino.blocks]
+            print(pressed_number)
+
+    def setup_tetrominos_to_play(self):
+        self.tetrominos_to_play = BLOCKS_PER_TURN
+        self.ready_to_play = True
+        pg.mixer.music.play(-1)
 
     def check_tetromino_landing(self):
         if self.tetromino.landing:
+            
             if self.is_game_over():
                 self.__init__(self.app)
             else:
@@ -77,16 +102,27 @@ class Tetris:
                 self.next_tetromino.current = True
                 self.tetromino = self.next_tetromino
                 self.next_tetromino = Tetromino(self, current=False)
+                self.tetrominos_to_play -= 1
+                if self.tetrominos_to_play == 0:
+                    self.ready_to_play = False
+                    pg.mixer.music.stop()
 
     def control(self, pressed_key):
-        if pressed_key == pg.K_LEFT:
+        if pressed_key == pg.K_LEFT and self.ready_to_play:
             self.tetromino.move(direction="left")
-        elif pressed_key == pg.K_RIGHT:
+        elif pressed_key == pg.K_RIGHT and self.ready_to_play:
             self.tetromino.move(direction="right")
-        elif pressed_key == pg.K_UP:
+        elif pressed_key == pg.K_UP and self.ready_to_play:
             self.tetromino.rotate()
-        elif pressed_key == pg.K_DOWN:
+        elif pressed_key == pg.K_DOWN and self.ready_to_play:
             self.speed_up = True
+        elif pressed_key in NUMBER_KEYS:
+            self.change_player(pressed_key)
+        elif pressed_key == pg.K_RETURN:
+            self.setup_tetrominos_to_play()
+        elif pressed_key == pg.K_x:
+            self.sound_ready_to_answer.play()
+
 
     def draw_grid(self):
         for x in range(FIELD_W):

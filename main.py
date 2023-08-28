@@ -53,6 +53,7 @@ class App:
                 self.fast_anim_trigger = True
 
 
+
     def run(self):
         while True:
             self.check_events()

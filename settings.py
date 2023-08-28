@@ -8,9 +8,17 @@ BG_COLOR = (24,89,117)
 
 FONT_PATH = 'assets/fonts/tetris_font.ttf'
 
-ANIM_TIME_INTERVAL = 170
+ANIM_TIME_INTERVAL = 500
 ANIM_FAST_TIME_INTERVAL = 15
 
+MUSIC = 'assets/sounds/Tetromino_falling.wav'
+SOUND_READY_TO_ANSWER = 'assets/sounds/ready_to_answer.wav'
+
+
+AMOUNT_OF_PLAYERS = 4
+PLAYER_COLORS = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"]
+NUMBER_KEYS = [pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7]
+BLOCKS_PER_TURN = 2
 
 TILE_SIZE = 50
 FIELD_SIZE = FIELD_W, FIELD_H = 10, 20

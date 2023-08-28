@@ -9,13 +9,16 @@ class Block(pg.sprite.Sprite):
         self.alive = True
 
         super().__init__(self.tetromino.tetris.sprite_group)
-        self.image = pg.Surface((TILE_SIZE, TILE_SIZE))
-        pg.draw.rect(self.image,"red", (1,1,TILE_SIZE-2,TILE_SIZE-2), border_radius=8)
-        self.rect = self.image.get_rect()
+        self.set_rect()
 
         self.sfx_speed = 0.1
-        self.sfx_cycles = 10
+        self.sfx_cycles = 3
         self.sfx_count = 0
+    
+    def set_rect(self):
+        self.image = pg.Surface((TILE_SIZE, TILE_SIZE))
+        pg.draw.rect(self.image,PLAYER_COLORS[self.tetromino.tetris.currently_playing], (1,1,TILE_SIZE-2,TILE_SIZE-2), border_radius=8)
+        self.rect = self.image.get_rect()
 
     def sfx_end_time(self):
         if self.tetromino.tetris.app.anim_trigger:
@@ -24,6 +27,8 @@ class Block(pg.sprite.Sprite):
                 self.sfx_count = 0
                 self.sfx_fix_pos()
                 self.tetromino.tetris.destroying_lines = 0
+                if self.tetromino.tetris.tetrominos_to_play == 1:
+                    pg.mixer.music.play(-1)
                 return True
     
     def sfx_fix_pos(self):
@@ -84,7 +89,7 @@ class Tetromino:
         return any(map(Block.is_collide, self.blocks, block_positions))
 
     def move(self, direction):
-        if self.tetris.destroying_lines == 0:
+        if self.tetris.destroying_lines == 0 and self.tetris.ready_to_play:
             move_direction = MOVE_DIRECTIONS[direction]
             new_block_positions = [block.pos + move_direction for block in self.blocks]
             is_collide = self.is_collide(new_block_positions)
