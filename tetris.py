@@ -140,6 +140,7 @@ class Tetris:
                 if self.tetrominos_to_play == 0:
                     self.ready_to_play = False
                     pg.mixer.music.stop()
+                    self.draw_random_antwoorders()
 
     def control(self, pressed_key):
         if pressed_key == pg.K_LEFT and self.ready_to_play:
